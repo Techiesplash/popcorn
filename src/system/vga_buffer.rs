@@ -3,10 +3,8 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 use volatile::Volatile;
 use x86_64::instructions::interrupts;
-use vga::writers::PrimitiveDrawing;
-use vga::colors::Color16;
-use vga::writers::{Graphics640x480x16, GraphicsWriter};
-use crate::{serial_print, serial_println};
+use vga::writers::{GraphicsWriter};
+use crate::{serial_print};
 
 
 #[allow(dead_code)]

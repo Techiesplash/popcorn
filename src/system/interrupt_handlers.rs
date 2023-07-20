@@ -1,4 +1,4 @@
-use core::arch::asm;
+use core::arch::{asm, global_asm};
 use core::panic::Location;
 use x86_64::structures::idt::{InterruptStackFrame, PageFaultErrorCode};
 use crate::{ system};
@@ -20,10 +20,14 @@ pub extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: Interrupt
     }
 }
 
-pub extern "x86-interrupt" fn syscall_handler(_stack_frame: InterruptStackFrame)
+/// @brief Gets called on interrupt 0x80, which is the syscall interrupt
+/// @details This function is called when the syscall interrupt is called.
+/// It will accept RAX as the syscall number, and RBX, RCX, RDX, RSI, and RDI as arguments.
+/// The return value is stored in RAX.
+pub unsafe extern "C" fn handler_syscall(rax: u64, rbx: u64, rcx: u64, rdx: u64, rsi: u64, rdi: u64) -> u64
 {
     // Grab registers and print to screen
-    let rax: u64;
+  /*  let rax: u64;
     let rbx: u64;
     let rcx: u64;
     let rdx: u64;
@@ -39,7 +43,7 @@ pub extern "x86-interrupt" fn syscall_handler(_stack_frame: InterruptStackFrame)
             asm!("mov {o}, rdx", o = out(reg) rdx);
             asm!("mov {o}, rsi", o = out(reg) rsi);
             asm!("mov {o}, rdi", o = out(reg) rdi);
-        }
+*/
     let data = SyscallArgs::new(rbx, rcx, rdx, rsi, rdi);
     let mut table = system::syscall::SYSCALL_TABLE.lock();
     let mut ret = 0;
@@ -51,12 +55,9 @@ pub extern "x86-interrupt" fn syscall_handler(_stack_frame: InterruptStackFrame)
     {
         ret = table.syscall_fallback.call((data,));
     }
+ret
+        //}
 
-    // Return value, put into RAX
-    unsafe
-        {
-            asm!("mov rax, {}", in(reg) ret);
-        }
 }
 
 /// Handles any double faults. Double faults are caused by faults that occur while handling another fault.

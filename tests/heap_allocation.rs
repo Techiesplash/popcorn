@@ -21,7 +21,7 @@ fn main(boot_info: &'static BootInfo) -> ! {
     use x86_64::VirtAddr;
     serial_println!("Heap allocation test");
 
-    popcorn::init();
+   // popcorn::init(boot_info);
     let addr = boot_info.physical_memory_offset;
     let phys_mem_offset = VirtAddr::new(addr);
     let mut mapper = unsafe { init_pagetable(phys_mem_offset) };

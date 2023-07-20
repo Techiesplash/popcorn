@@ -15,9 +15,7 @@ extern crate alloc;
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use popcorn::{kernel};
-use popcorn::system::{allocation, init_system, task};
-#[cfg(not(test))]
-use popcorn::system::memory::{BootInfoFrameAllocator, init_pagetable};
+use popcorn::system::{init_system, task};
 
 
 #[cfg(not(test))]
@@ -42,15 +40,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Initializing hardware...");
 
     // Initialize the kernel
-    init_system();
+    init_system(boot_info);
 
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let mut mapper = unsafe { init_pagetable(phys_mem_offset) };
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
-
-    allocation::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
     // The heap is now ready to be used. We can now use Box, Vec, etc.
-
     kernel::init_kernel();
 
     // Halt until the next interrupt

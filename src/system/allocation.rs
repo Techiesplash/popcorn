@@ -4,7 +4,7 @@ use core::ptr::null_mut;
 pub struct Dummy;
 
 pub const HEAP_START: usize = 0x_4444_4444_0000;
-pub const HEAP_SIZE: usize = 100 * 1024; // 100 KiB
+pub const HEAP_SIZE: usize = 400 * 1024; // 400 KiB
 
 unsafe impl core::alloc::GlobalAlloc for Dummy {
     unsafe fn alloc(&self, _layout: Layout) -> *mut u8 {
@@ -27,6 +27,9 @@ pub fn init_heap(
     mapper: &mut impl Mapper<Size4KiB>,
     frame_allocator: &mut impl FrameAllocator<Size4KiB>,
 ) -> Result<(), MapToError<Size4KiB>> {
+    set_color!(Color::Green, Color::Black);
+    println!("Initializing heap...");
+    set_color!(Color::White, Color::Black);
     let page_range = {
         let heap_start = VirtAddr::new(HEAP_START as u64);
         let heap_end = heap_start + HEAP_SIZE - 1u64;
@@ -47,6 +50,8 @@ pub fn init_heap(
         ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
     }
 
+    // Set up MMU
+
     Ok(())
 }
 
@@ -63,6 +68,8 @@ pub unsafe trait GlobalAlloc {
 }
 
 use linked_list_allocator::LockedHeap;
+use crate::{println, set_color};
+use crate::system::vga_buffer::Color;
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
