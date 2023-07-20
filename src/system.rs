@@ -10,6 +10,7 @@ pub mod power;
 pub mod serial;
 pub mod vga_buffer;
 pub mod task;
+pub mod syscall;
 pub mod vga_video;
 
 /// @brief Initializes the system's hardware, such as the GDT, IDT, etc.

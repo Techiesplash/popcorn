@@ -5,6 +5,7 @@
 #![test_runner(crate::testutils::test_runner)]
 #![feature(panic_info_message)]
 #![feature(fmt_internals)]
+#![feature(fn_traits)]
 #![reexport_test_harness_main = "test_main"]
 
 extern crate alloc;
