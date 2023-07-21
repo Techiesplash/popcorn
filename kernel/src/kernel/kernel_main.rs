@@ -30,7 +30,7 @@ pub fn sys_fallback(_args: system::syscall::SyscallArgs) -> u64 {
 
 
 
-/// @brief The main function of the kernel
+/// @brief The main function of the src
 pub fn main() {
     let mut o: u64 = 0;
     // The heap should be initialized by now, along with everything we need to get started.

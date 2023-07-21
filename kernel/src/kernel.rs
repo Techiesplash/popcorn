@@ -1,4 +1,4 @@
-// Import the kernel directory, and offer some functions to manage it from the outside
+// Import the src directory, and offer some functions to manage it from the outside
 
 use crate::{println, set_color};
 use crate::system::task::hlt_loop;
@@ -8,8 +8,8 @@ use crate::system::vga_buffer::Color;
 pub mod kernel_main;
 
 /**
- * @brief Call this to start the kernel, once low-level initialization is done
- * @details Call this to start the kernel, once low-level initialization is done.
+ * @brief Call this to start the src, once low-level initialization is done
+ * @details Call this to start the src, once low-level initialization is done.
  * Don't call this function before low-level initialization is done, or you will get problems.
  */
 pub fn init_kernel()
@@ -22,7 +22,7 @@ pub fn init_kernel()
         hlt_loop();
     }
     set_color!(Color::Green, Color::Black);
-    println!("System validation passed. Starting kernel...");
+    println!("System validation passed. Starting src...");
     set_color!(Color::White, Color::Black);
     kernel_main::main();
 }

@@ -23,8 +23,8 @@ mod utils;
 
 
 /**
- * @brief Initializes the kernel.
- * @details This function initializes the kernel. Call this function before doing anything else.
+ * @brief Initializes the src.
+ * @details This function initializes the src. Call this function before doing anything else.
  * To be used in Main, and to be used in Tests.
  */
 pub fn init(boot_info: &'static BootInfo) {
@@ -32,8 +32,8 @@ pub fn init(boot_info: &'static BootInfo) {
 }
 
 /**
- * @brief Shuts down the kernel.
- * @details This function clears the screen, then shuts down the kernel, then shuts down the computer.
+ * @brief Shuts down the src.
+ * @details This function clears the screen, then shuts down the src, then shuts down the computer.
  * You should be able to call this anywhere if needed.
  */
 pub fn shutdown() {

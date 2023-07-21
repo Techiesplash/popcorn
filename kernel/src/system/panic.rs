@@ -66,7 +66,7 @@ fn knl_panic_get_title(stack_frame: &PanicTechnicalInfo) -> &'static str {
     // Randomly select a title, for added fun
     let titles: [&str; 12] = [
         // Silly titles
-        "Pop goes the kernel!",
+        "Pop goes the src!",
         "Popcorn Pandemonium!",
         "Kernel Kablooey!",
         "Kernel Kablooey 2: Electric Boogaloo!",
@@ -114,7 +114,7 @@ fn knl_panic_print(
     set_color!(Color::White, Color::Red);
 
     println!(
-        include_str!("../../locale/en_panic.txt"),
+        include_str!("../../../locale/en_panic.txt"),
         location,
         message,
         stack_frame.instruction_pointer,

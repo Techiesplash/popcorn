@@ -1,89 +1,18 @@
-#![no_std] // don't link the Rust standard library
-#![feature(panic_info_message)]
-#![no_main] // disable all Rust-level entry points
-#![reexport_test_harness_main = "test_main"] // re-export the test executor.
-#![feature(custom_test_frameworks)] // use feature custom-test-frameworks.
-#![test_runner(popcorn::testutils::test_runner)] // declare the test runner
-#![feature(asm_const)]
-#![feature(abi_x86_interrupt)]
-#![feature(fmt_internals)]
-#![feature(core_intrinsics)]
+fn main() {
+    // read env variables that were set in build script
+    let uefi_path = env!("UEFI_PATH");
+    let bios_path = env!("BIOS_PATH");
 
-extern crate alloc;
-
-#[cfg(not(test))]
-use bootloader::{entry_point, BootInfo};
-use core::panic::PanicInfo;
-use popcorn::{kernel};
-use popcorn::system::{init_system, task};
-
-
-#[cfg(not(test))]
-entry_point!(kernel_main);
-
-/**
- * @brief The main function of the kernel
- * @details This function is called by the bootloader.
- * @param boot_info The boot information passed by the bootloader.
- */
-#[cfg(not(test))]
-fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    use popcorn::system::vga_buffer::Color;
-    use popcorn::{ clear_screen, println, set_color};
-    use x86_64::VirtAddr;
-
-    // This can be named arbitrarily.
-
-    // Print some information
-    clear_screen!(Color::Black);
-    set_color!(Color::White, Color::Black);
-    println!("Initializing hardware...");
-
-    // Initialize the kernel
-    init_system(boot_info);
-
-    // The heap is now ready to be used. We can now use Box, Vec, etc.
-    kernel::init_kernel();
-
-    // Halt until the next interrupt
-    task::hlt_loop();
-}
-
-// The below needs to be separate from lib.rs, so it doesn't end up in tests.
-/**
- * @brief Processes a Panic event
- * @details This function is called when a panic occurs. It prints the panic message, and halts the system.
- * @param info Information about the panic
- */
-#[cfg(not(test))]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    use popcorn::system::panic::{knl_panic, PanicTechnicalInfo};
-    use x86_64::instructions::segmentation::Segment;
-    // Create stack frame
-    let mut stack_frame: PanicTechnicalInfo = PanicTechnicalInfo::new();
-
-    // Fill stack tech info
-    stack_frame.instruction_pointer = x86_64::registers::control::Cr2::read().as_u64();
-    stack_frame.code_segment = x86_64::instructions::segmentation::CS::get_reg().0 as u64;
-    stack_frame.cpu_flags = x86_64::registers::rflags::read_raw();
-    stack_frame.stack_pointer = x86_64::registers::control::Cr2::read().as_u64();
-    stack_frame.stack_segment = x86_64::instructions::segmentation::SS::get_reg().0 as u64;
-
-    knl_panic(
-        info.location().unwrap(),
-        info.message().unwrap(),
-        &stack_frame,
-    );
-}
-
-#[cfg(test)]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    popcorn::testutils::test_panic_handler(info)
-}
-
-#[test_case]
-fn trivial_assertion() {
-    assert_eq!(1, 1);
+    // choose whether to start the UEFI or BIOS image
+    let uefi = true;
+0
+    let mut cmd = std::process::Command::new("qemu-system-x86_64");
+    if uefi {
+        cmd.arg("-bios").arg(ovmf_prebuilt::ovmf_pure_efi());
+        cmd.arg("-drive").arg(format!("format=raw,file={uefi_path}"));
+    } else {
+        cmd.arg("-drive").arg(format!("format=raw,file={bios_path}"));
+    }
+    let mut child = cmd.spawn().unwrap();
+    child.wait().unwrap();
 }
