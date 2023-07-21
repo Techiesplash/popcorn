@@ -24,10 +24,10 @@ pub extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: Interrupt
 /// @details This function is called when the syscall interrupt is called.
 /// It will accept RAX as the syscall number, and RBX, RCX, RDX, RSI, and RDI as arguments.
 /// The return value is stored in RAX.
-pub unsafe extern "C" fn handler_syscall(rax: u64, rbx: u64, rcx: u64, rdx: u64, rsi: u64, rdi: u64) -> u64
+pub unsafe extern "C" fn handler_syscall() -> u64
 {
     // Grab registers and print to screen
-  /*  let rax: u64;
+    let rax: u64;
     let rbx: u64;
     let rcx: u64;
     let rdx: u64;
@@ -43,18 +43,13 @@ pub unsafe extern "C" fn handler_syscall(rax: u64, rbx: u64, rcx: u64, rdx: u64,
             asm!("mov {o}, rdx", o = out(reg) rdx);
             asm!("mov {o}, rsi", o = out(reg) rsi);
             asm!("mov {o}, rdi", o = out(reg) rdi);
-*/
-    let data = SyscallArgs::new(rbx, rcx, rdx, rsi, rdi);
+        }
+    let mut data = SyscallArgs::new(rbx, rcx, rdx, rsi, rdi);
     let mut table = system::syscall::SYSCALL_TABLE.lock();
     let mut ret = 0;
-    if rax < table.syscall_table.len() as u64
-    {
-        ret = table.syscall_table[rax as usize](data);
-    }
-    else
-    {
-        ret = table.syscall_fallback.call((data,));
-    }
+
+    ret = table.get_syscall(rax as u8)(data);
+
 ret
         //}
 

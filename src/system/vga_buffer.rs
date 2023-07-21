@@ -5,6 +5,7 @@ use volatile::Volatile;
 use x86_64::instructions::interrupts;
 use vga::writers::{GraphicsWriter};
 use crate::{serial_print};
+use crate::{printf};
 
 
 #[allow(dead_code)]
@@ -153,6 +154,8 @@ impl Writer {
     pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
+                // If null terminator:
+                0 => return,
                 0x20..=0x7e | b'\n' => self.write_byte(byte),
                 _ => self.write_byte(0xfe),
             }
@@ -183,6 +186,14 @@ lazy_static! {
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::system::vga_buffer::_print(format_args!($($arg)*)));
+}
+#[macro_export]
+macro_rules! printf {
+    ($bufsize:expr, $text:expr, $($arg:tt)*) => (
+        let mut buf: [u8; $bufsize] = [0; $bufsize];
+        let s = sprintf!(buf, $text, $($arg)*);
+        crate::system::vga_buffer::_print_noargs(s);
+    );
 }
 
 /// Prints to the VGA text buffer through the global `WRITER` instance,
@@ -233,7 +244,11 @@ pub fn _print(args: fmt::Arguments) {
         serial_print!("{}", args);
     });
 }
-
+pub fn _print_noargs(str: &str) {
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_string(str);
+    });
+}
 /**
  *  \brief Clears the screen with the given color.
  *  This function is called by the `clear_screen!` macro.

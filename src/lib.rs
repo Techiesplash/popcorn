@@ -19,6 +19,7 @@ use crate::testutils::QemuExitCode::Success;
 pub mod system;
 pub mod testutils;
 pub mod kernel;
+mod utils;
 
 
 /**

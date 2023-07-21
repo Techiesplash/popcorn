@@ -1,43 +1,30 @@
+use alloc::format;
 use core::arch::asm;
-
+use core::str::from_utf8;
+use crate::{printf, sprintf};
 use crate::{print, println, set_color, system};
 use crate::system::vga_buffer::Color;
 
 pub fn sys_exit(_args: system::syscall::SyscallArgs) -> u64 {
-    println!("'exit' syscall called, with args: {} {}", _args.arg_a, _args.arg_b);
-    // Grab rax, rbx, rcx, rdx, rsi, rdi and println
-    let mut rax: u64 = 0;
-    let mut rbx: u64 = 0;
-    let mut rcx: u64 = 0;
-    let mut rdx: u64 = 0;
-    let mut rsi: u64 = 0;
-    let mut rdi: u64 = 0;
-
-    unsafe
-        {
-            asm!(
-            "mov {out_rax}, rax",
-            "mov {out_rbx}, rbx",
-            "mov {out_rcx}, rcx",
-            "mov {out_rdx}, rdx",
-            "mov {out_rsi}, rsi",
-            "mov {out_rdi}, rdi",
-            out_rax = out(reg) rax,
-            out_rbx = out(reg) rbx,
-            out_rcx = out(reg) rcx,
-            out_rdx = out(reg) rdx,
-            out_rsi = out(reg) rsi,
-            out_rdi = out(reg) rdi,
-            );
-            println!("rax: {}, rbx: {}, rcx: {}, rdx: {}, rsi: {}, rdi: {}", rax, rbx, rcx, rdx, rsi, rdi);
-
-
+    print!("sys_exit() called.\n");
+    printf!(1024, "\
+    EBX: 0x%X16\n\
+    ECX: 0x%X16\n\
+    EDX: 0x%X16\n\
+    ESI: 0x%X16\n\
+    EDI: 0x%X16\n",
+    _args.arg_a,
+    _args.arg_b,
+    _args.arg_c,
+    _args.arg_src,
+    _args.arg_dest
+    );
             32
-        }
+
 }
 
 pub fn sys_fallback(_args: system::syscall::SyscallArgs) -> u64 {
-    println!("A syscall was called, but no handler was registered for it. Arg a: {}", _args.arg_a);
+   // println!("A syscall was called, but no handler was registered for it. Arg a: {}", _args.arg_a);
     0
 }
 

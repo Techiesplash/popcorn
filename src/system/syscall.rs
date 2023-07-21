@@ -113,6 +113,9 @@ impl SyscallTableDescriptor {
 
     /// @brief Get the syscall handler for a given syscall number
     pub fn get_syscall(&self, syscall_num: u8) -> SyscallHandler {
+        if syscall_num > 255 {
+            return self.syscall_fallback;
+        }
         self.syscall_table[syscall_num as usize]
     }
 

@@ -22,11 +22,6 @@ pub enum InterruptIndex {
     Syscall = 0x80,
 }
 
-extern "C" {
-    fn syscall() -> u64;
-    fn set_syscall_handler(handler: u64);
-}
-
 impl InterruptIndex {
     pub(crate) fn as_u8(self) -> u8 {
         self as u8
@@ -42,8 +37,6 @@ lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
        let mut idt = InterruptDescriptorTable::new();
         unsafe {
-            set_syscall_handler(interrupt_handlers::handler_syscall as u64);
-
             // We need to ensure a fresh stack for double faults
             #[cfg(not(test))]
             idt.double_fault.set_handler_fn(interrupt_handlers::double_fault_handler)
@@ -61,7 +54,7 @@ lazy_static! {
             idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(interrupt_handlers::keyboard_interrupt_handler);
 
             let syscall_handler: extern "x86-interrupt" fn(InterruptStackFrame) =
-                core::mem::transmute(syscall as *const ());
+                core::mem::transmute(interrupt_handlers::handler_syscall as *const ());
 
             idt[InterruptIndex::Syscall.as_usize()].set_handler_fn(syscall_handler);
 
