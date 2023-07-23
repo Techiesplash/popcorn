@@ -18,14 +18,14 @@ pub mod vga_video;
 
 
 /// @brief Initializes the system's hardware, such as the GDT, IDT, etc.
-pub fn init_system(boot_info: &'static bootloader::BootInfo)
+pub fn init_system(boot_info: &'static mut bootloader_api::BootInfo)
 {
     // Interrupts come first.
     interrupts::init_interrupts();
 
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let phys_mem_offset = VirtAddr::new(*boot_info.physical_memory_offset.as_mut().unwrap());
     let mut mapper = unsafe { init_pagetable(phys_mem_offset) };
-    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
+    let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_regions) };
 
     allocation::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 

@@ -2,7 +2,7 @@ install:
 	cargo install bootimage
 	rustup component add llvm-tools-preview
 build:
-	cargo bootimage --target arch/x86_64-arch.json
+	cargo build --target x86_64-unknown-none
 
 run: build
 	cargo run
@@ -11,7 +11,7 @@ clean:
 	cargo clean
 
 debug: build
-	bash -c "qemu-system-x86_64 -s -S -drive format=raw,file=target/x86_64-arch/debug/bootimage-popcorn.bin &"
+	bash -c "qemu-system-x86_64 -s -S -drive format=raw,file=target/x86_64-unknown-none/debug/popcorn &"
 
 rebuild: clean build
 

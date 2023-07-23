@@ -1,3 +1,5 @@
+// build.rs
+
 use std::path::PathBuf;
 
 fn main() {
